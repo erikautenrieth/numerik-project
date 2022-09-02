@@ -1,4 +1,6 @@
 import numpy as np
+from scipy.sparse import diags
+
 
 def isDDM(m, n) :
     for i in range(0, n) :
@@ -24,3 +26,10 @@ def characteristics(M):
     #print("norm: ", np.linalg.norm(M))
     #print("rank: ", np.linalg.matrix_rank(M))
     return np.linalg.det(M)
+
+
+def create_block_triag(n):
+    k = [np.ones(n-1)*(-1),2*np.ones(n),np.ones(n-1)*(-1)]
+    offset = [-1,0,1]
+    A = diags(k,offset).toarray()
+    return A
