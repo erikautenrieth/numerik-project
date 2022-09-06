@@ -14,171 +14,156 @@ from scipy import linalg
 from scipy.sparse import diags
 from sympy import *
 import sympy as sym
-sym.init_printing()
-from IPython.display import display, Math
 
-def gaussElim(A,B):
+
+def gauss(A,B):
+    from numpy import array, zeros, fabs
+    n = len(B)
+    x = zeros(n, float)
     a = A.copy() # copy original matrix A
-    b = B.copy() #copy original vector b
-    n = len(b)
-    c=0
-    # Elimination phase
-    start = time.process_time()
-    for k in range(0,n-1):
-        c +=1
+    b = B.copy()
+    c = 0
+    #first loop specifys the fixed row
+    for k in range(n-1):
+        if fabs(a[k,k]) < 1.0e-12:
+            for i in range(k+1, n):
+                c+=1
+                if fabs(a[i,k]) > fabs(a[k,k]):
+                    a[[k,i]] = a[[i,k]]
+                    b[[k,i]] = b[[i,k]]
+                    break
+        #applies the elimination below the fixed row
         for i in range(k+1,n):
+            if a[i,k] == 0:continue
+
+            factor = a[k,k]/a[i,k]
+            for j in range(k,n):
+                c+=1
+                a[i,j] = a[k,j] - a[i,j]*factor
+                #we also calculate the b vector of each row
+            b[i] = b[k] - b[i]*factor
+
+    x[n-1] = b[n-1] / a[n-1, n-1]
+    for i in range(n-2, -1, -1):
+        sum_ax = 0
+        for j in range(i+1, n):
+            sum_ax += a[i,j] * x[j]
             c+=1
-            if a[i,k] != 0.0:
-                #if not null define λ
-                lam = a [i,k]/a[k,k]
-                #we calculate the new row of the matrix
-                a[i,k+1:n] = a[i,k+1:n] - lam*a[k,k+1:n]
-                #we update vector b
-                b[i] = b[i] - lam*b[k]
-                # backward substitution
-    for k in range(n-1,-1,-1):
-        c+=1
-        b[k] = (b[k] - np.dot(a[k,k+1:n],b[k+1:n]))/a[k,k]
+        x[i] = (b[i] - sum_ax) / a[i,i]
 
-    end = time.process_time()
-    gauss_elim_time = '{:5.4f}s'.format(end-start)
-
-    return b, gauss_elim_time, c
+    return x, c
 
 
-def gauss_elimination(A,b):
-    from scipy.linalg import lu_factor, lu_solve
-    start = time.process_time()
-    lu, piv = lu_factor(A)
-    x = lu_solve((lu, piv), b)
-
-    end = time.process_time()
-    gauss_elim_time = '{:5.4f}s'.format(end-start)
-
-    #print("piv:", piv)
-    #print("lu:", lu)
-
-    return x, gauss_elim_time
-
-def jacobi_num(A, b, tol=10e-4, iter=10000):
-    n = A.shape[0]
-    x0 = np.zeros((n))
-    x = x0.copy()
-    x_prev = x0.copy()
-    k = 0
-    rel_diff = tol * 2
-    start = time.process_time()
-    while (rel_diff > tol) and (k < iter):
-        for i in range(0, n):
-            subs = 0.0
-            for j in range(0, n):
-                if i != j: subs += A[i,j] * x_prev[j]
-            x[i] = (b[i] - subs ) / A[i,i]
-        k += 1
-        rel_diff = norm(x - x_prev) / norm(x)
-        x_prev = x.copy()
-    end = time.process_time()
-    jacobi_time = '{:5.4f}s'.format(end-start)
-
-    return x, jacobi_time, k
-
-
-def gauss_seidel_num(A, b, tol=1e-4, max_iterations=10000):
-    x = np.zeros_like(b, dtype=np.double)
-    start = time.process_time()
-    for k in range(max_iterations):
-        x_prev  = x.copy()
-        for i in range(A.shape[0]):
-            x[i] = (b[i] - np.dot(A[i,:i], x[:i]) - np.dot(A[i,(i+1):], x_prev[(i+1):])) / A[i ,i]
-
-        if norm(x - x_prev, ord=np.inf) / norm(x, ord=np.inf) < tol:
-            break
-    end = time.process_time()
-    gauss_seidel_time = '{:5.4f}s'.format(end-start)
-    return x, gauss_seidel_time, k
-
-
-def jacobi(A, b, tol=10e-4, iter=10000):
-    erg = []
+def jacobi(A, b, iter=10000):
+    #erg = []
     [m, n] = np.shape(A)
     x = np.zeros((m))
-    x0 = x.copy()
+    x0 = np.copy(x)
     D = np.diag(np.diag(A))
     D_inv = np.linalg.inv(D)
     B = np.dot(D_inv,D - A)
     g = np.dot(D_inv,b)
-    start = time.process_time()
     for k in range(iter):
-        erg.append(x)
-        x = np.dot(B,x)+g
-
-        if norm(x - x0, ord=np.inf) < tol: # / norm(x, ord=np.inf)
-            end = time.process_time()
-            jacobi_time = '{:5.4f}s'.format(end-start)
-            return erg, jacobi_time, k
-
-        x0 = x.copy()
-
-    end = time.process_time()
-    jacobi_time = '{:5.4f}s'.format(end-start)
-
-    return erg, jacobi_time, k
+        #erg.append(x)
+        x = np.add(np.dot(B,x),g)
+        if termin(x , x0 ):
+            return x, k
+        x0 = np.copy(x)
+    return x, k
 
 
-def gauss_seidel(A, b, tol=10e-4, iter=10000):
-    erg = []
-    [m, n] = np.shape(A)
-    x = np.zeros((m))
-    x0 = x.copy()
+def jacobi_2(A, b, iter=10000):
+    x0 = np.zeros_like(b, dtype=np.double)
+    D = np.diag(A)
+    R = A - np.diagflat(D)
+
+    for k in range(iter):
+        x = (b - np.dot(R,x0))/ D
+        if termin(x , x0 ):
+            return x, k
+        x0 = np.copy(x)
+    return x, k
+
+
+def gauss_seidel(A, b, iter=10000):
+    x = np.zeros_like(b, dtype=np.double)
+    x0 = np.copy(x)
     R = np.triu(A,k=1)
     L = np.tril(A,k=-1)
     D = np.diag(np.diag(A))
     B = -(np.linalg.inv(D + L)) @ R
     g =   (np.linalg.inv(D + L)) @ b
-    start = time.process_time()
     for k in range(iter):
-        erg.append(x)
-        x = np.dot(B,x)+g
+        x = np.add(np.dot(B,x),g)
+        if termin(x , x0 ):
+            return x, k
+        x0 = np.copy(x)
 
-        if norm(x - x0, ord=np.inf)  < tol: # / norm(x, ord=np.inf)
-            end = time.process_time()
-            gauss_seidel_time = '{:5.4f}s'.format(end-start)
-            return erg, gauss_seidel_time, k
-        x0 = x.copy()
-
-    end = time.process_time()
-    gauss_seidel_time =  '{:5.4f}s'.format(end-start)
-    return erg, gauss_seidel_time, k
+    return x, k
 
 
-def sor(A, b, w_in=None,  tol=10e-4, iter=10000):
-    erg = []
-    [m, n] = np.shape(A)
-    x = np.zeros((m))
-    x0 = x.copy()
+def gauss_seidel_num(A, b, iter=10000):
+    x = np.zeros_like(b, dtype=np.double)
+    for k in range(iter):
+        x_prev  = x.copy()
+        for i in range(A.shape[0]):
+            x[i] = (b[i] - np.dot(A[i,:i], x[:i]) - np.dot(A[i,(i+1):], x_prev[(i+1):])) / A[i ,i]
+
+        if termin(x , x_prev ):
+            break
+    return x, k
+
+
+def sor(A, b,w=1.25, iter=10000):
+    n = b.shape
+    x = np.zeros((n))
+    x0 = np.copy(x)
+    R = np.triu(A,k=1)  # C2
+    L = np.tril(A,k=-1) # C1
+    D = np.diag(np.diag(A))
+    for k in range(iter):
+        x = -(np.linalg.inv(np.add(D , np.dot(w,L)))) @ (np.subtract(np.dot(w,R) , np.dot(1-w,D))) @ x +   np.dot(np.dot( w,np.linalg.inv(D + np.dot(w,L))) , b)
+        if termin(x , x0 ):
+            return x, k
+        x0 = np.copy(x)
+
+    return x, k
+
+
+def comp_w(A):
     R = np.triu(A,k=1)  # C2
     L = np.tril(A,k=-1) # C1
     D = np.diag(np.diag(A))
     Jm = np.dot(-np.linalg.inv(D), (L + R))
     p = np.linalg.norm(Jm, 2)
-    #print("Spektralradius der Jacobi-Matrix: " +str(p))
-    if p > 1: w = 1
-    else:
-        result = (2*(1 - np.sqrt(1-p**2))) / p**2
-        w = result
-    if w_in is not None: w = w_in
-    #print("omega =",w)
-    start = time.process_time()
-    for k in range(iter):
-        erg.append(x)
-        x = -(np.linalg.inv(D + np.dot(w,L))) @ (np.dot(w,R) - np.dot(1-w,D)) @ x +   np.dot( w,np.linalg.inv(D + np.dot(w,L))) @ b
+    w = (2*(1 - np.sqrt(1-p**2))) / p**2
+    print("Spektralradius der Jacobi-Matrix: " +str(p))
+    print("omega =",w)
+    return w
 
-        if norm(x - x0, ord=np.inf)< tol: # / norm(x, ord=np.inf)
-            end = time.process_time()
-            sor_time = '{:5.4f}s'.format(end-start)
-            return erg, sor_time, k
-        x0 = x.copy()
 
-    end = time.process_time()
-    sor_time = '{:5.4f}s'.format(end-start)
-    return erg, sor_time, k
+def SOR_num(A, b,w, iter=10000):
+    k=0
+    n = b.shape
+    x0 =  np.zeros((n))
+    x = np.copy(x0)
+    for step in range (1, iter):
+        for i in range(n[0]):
+            k+=1
+            new_values_sum = np.dot(A[i, :i], x[:i])
+            old_values_sum = np.dot(A[i, i+1 :], x0[ i+1: ])
+            x[i] = (b[i] - (old_values_sum + new_values_sum)) / A[i, i]
+            x[i] = np.dot(x[i], w) + np.dot(x0[i], (1 - w))
+        if termin(x , x0 ):
+            break
+        x0 = x
+    return x, k
+
+
+def termin(x , x0 , tol=10e-10):
+    #  # if (np.linalg.norm(np.dot(A, x)-b ) < tol):  / norm(x, ord=np.inf)
+    return norm(np.subtract(x , x0), ord=1)   < tol
+
+
+def error(algo_sol, true_sol):
+    return "{:.3E}".format((norm(np.subtract(algo_sol , true_sol),ord=1)))

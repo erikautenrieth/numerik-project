@@ -1,0 +1,26 @@
+\begin{table}[h!]
+\centering
+\caption{Laufzeitvergleich.}
+\label{laufzeit}
+\begin{tabular}{lrlrlrlrl}
+\toprule
+{} & \multicolumn{2}{l}{Jacobi} & \multicolumn{2}{l}{Gauß Seidel} & \multicolumn{2}{l}{SOR} & \multicolumn{2}{l}{Gauß Eliminierung} \\
+{} & Iterationen &     Fehler & Iterationen &     Fehler & Iterationen &     Fehler &       Iterationen &     Fehler \\
+\textbf{Matrixgröße} &             &            &             &            &             &            &                   &            \\
+\midrule
+\textbf{4          } &           4 &  1.135E-01 &           4 &  4.163E-17 &          14 &  1.038E-10 &                 6 &  5.857E-01 \\
+\textbf{8          } &           8 &  9.320E-01 &           7 &  7.980E-17 &          11 &  6.994E-11 &                28 &  1.955E+00 \\
+\textbf{16         } &           9 &  3.101E-01 &           9 &  2.555E-12 &          11 &  7.813E-12 &               120 &  2.199E+00 \\
+\textbf{25         } &          10 &  2.986E-01 &           9 &  7.874E-12 &          10 &  4.017E-11 &               300 &  1.849E+00 \\
+\textbf{11         } &          10 &  6.427E-01 &          10 &  1.197E-16 &          13 &  8.457E-12 &                55 &  2.137E+00 \\
+\textbf{21         } &          10 &  3.247E-01 &           9 &  3.794E-12 &          10 &  3.499E-11 &               210 &  2.980E+00 \\
+\textbf{31         } &           9 &  2.710E-01 &           8 &  2.415E-11 &           9 &  3.305E-11 &               465 &  2.249E+00 \\
+\textbf{41         } &           9 &  2.827E-01 &           8 &  1.267E-11 &           9 &  8.102E-12 &               820 &  2.536E+00 \\
+\textbf{51         } &           9 &  3.510E-01 &           8 &  1.188E-11 &           8 &  1.908E-11 &              1275 &  2.248E+00 \\
+\textbf{50         } &           9 &  1.808E-01 &           8 &  1.305E-11 &           9 &  7.485E-12 &              1225 &  2.034E+00 \\
+\textbf{300        } &           7 &  1.179E-01 &           6 &  1.778E-11 &           6 &  2.131E-11 &             44850 &  2.162E+00 \\
+\textbf{500        } &           6 &  9.767E-02 &           6 &  2.768E-12 &           6 &  3.408E-12 &            124750 &  2.127E+00 \\
+\textbf{1000       } &           6 &  6.226E-02 &           6 &  2.605E-13 &           6 &  2.636E-13 &            499500 &  2.081E+00 \\
+\bottomrule
+\end{tabular}
+\end{table}
