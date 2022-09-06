@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 
-
 def isDDM(m, n) :
     for i in range(0, n) :
         sum = 0
@@ -18,7 +17,6 @@ def characteristics(M):
     #print("norm: ", np.linalg.norm(M))
     #print("rank: ", np.linalg.matrix_rank(M))
     return np.linalg.det(M)
-
 
 def runntime_compare_df(mat, jac_it, gasei_it, sor_it, gael_it,jac_time, gasei_time, sor_time_arr, gael_time, label = "Zeit (sek)"):
     mux = pd.MultiIndex.from_product([["Jacobi", "Gauß Seidel", "SOR", "Gauß Eliminierung"], ['Iterationen',f'{label}']])
@@ -39,7 +37,6 @@ def runntime_compare_df(mat, jac_it, gasei_it, sor_it, gael_it,jac_time, gasei_t
                 index=True, bold_rows=True, caption="Laufzeitvergleich.", position="h!", label="laufzeit")
 
     return df
-
 
 def print_lgs(A,b):
     from sympy import symbols, Matrix

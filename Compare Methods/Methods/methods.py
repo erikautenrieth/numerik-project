@@ -82,28 +82,24 @@ def sor(A, b,w, iter=10000):
         x0 = np.copy(x)
     return x, k
 
-
-
 def termin(x , x0 , tol=10e-10):
     #  # if (np.linalg.norm(np.dot(A, x)-b ) < tol):  / norm(x, ord=np.inf)
     return norm(np.subtract(x , x0), ord=1)   < tol
 
-
 def error(algo_sol, true_sol):
     return "{:.3E}".format((norm(np.subtract(algo_sol , true_sol),ord=1)))
 
-
 def comp_w(A):
+    #B = np.dot(-np.linalg.inv(D), (D - A))
+    #p_2 = np.linalg.norm(B, 2)
+    #w_2 = 2 / (1+np.sqrt(1-p_2))
     R = np.triu(A,k=1)  # C2
     L = np.tril(A,k=-1) # C1
     D = np.diag(np.diag(A))
     Jm = np.dot(-np.linalg.inv(D), (L + R))
-    B = np.dot(-np.linalg.inv(D), (D - A))
     p = np.linalg.norm(Jm, 2)
-    p_2 = np.linalg.norm(B, 2)
-    w_2 = 2 / (1+np.sqrt(1-p_2))
     w = (2*(1 - np.sqrt(1-p**2))) / p**2
 
-    print("Spektralradius der Jacobi-Matrix: " +str(p_2))
-    print("omega =",w_2)
-    return w_2
+    print("Spektralradius der Jacobi-Matrix: " +str(p))
+    print("omega =", w)
+    return w

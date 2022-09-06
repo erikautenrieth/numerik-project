@@ -1,0 +1,16 @@
+\begin{table}[h!]
+\centering
+\caption{Laufzeitvergleich.}
+\label{laufzeit}
+\begin{tabular}{lrlrlrlrl}
+\toprule
+{} & \multicolumn{2}{l}{Jacobi} & \multicolumn{2}{l}{Gauß Seidel} & \multicolumn{2}{l}{SOR} & \multicolumn{2}{l}{Gauß Eliminierung} \\
+{} & Iterationen & Zeit (sek) & Iterationen & Zeit (sek) & Iterationen & Zeit (sek) &       Iterationen & Zeit (sek) \\
+\textbf{Matrixgröße} &             &            &             &            &             &            &                   &            \\
+\midrule
+\textbf{20         } &           5 &  4.739E-04 &           5 &  5.222E-04 &          13 &  2.660E-03 &               190 &  6.589E-04 \\
+\textbf{50         } &          17 &  3.029E-03 &           9 &  1.505E-03 &          12 &  1.236E-02 &              1225 &  5.924E-03 \\
+\textbf{100        } &          12 &  3.457E-03 &           9 &  2.151E-03 &          11 &  1.847E-02 &              4950 &  2.040E-02 \\
+\bottomrule
+\end{tabular}
+\end{table}

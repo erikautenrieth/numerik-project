@@ -9,7 +9,6 @@ def create_block_triag(n):
     b = np.ones((n))
     return A, b
 
-
 def band_matrix(n):
     """
     This function sets up the matrices A and b using the first order central differences
@@ -36,7 +35,7 @@ def band_matrix(n):
     b=np.zeros(N)
     b[int((N-1)/2)]=2
 
-    return A,b
+    return A, b
 
 def create_upper_triangular(n, dens=0.25):
     from scipy.sparse import random
@@ -66,6 +65,6 @@ def create_upper_triangular(n, dens=0.25):
     #A=np.random.randint(low=-20,high=20,size=(n,n))
     #b = np.ones((n))
     #b=np.random.randint(low=-20,high=20,size=(n,1))
-    if  help.characteristics(A) == 0: print("Determinante ist Null")
+    #if  characteristics(A) == 0: print("Determinante ist Null")
 
     return A, b
