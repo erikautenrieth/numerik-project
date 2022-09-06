@@ -1,27 +1,12 @@
-import time
-import  math
 import numpy as np
 from numpy.linalg import inv
 from numpy.linalg import *
-import numpy.linalg as npl
-import numpy.random as npr
-import pandas as pd
-import cufflinks as cf
-import seaborn as sns
-import matplotlib.pyplot as plt
 
-from scipy import linalg
-from scipy.sparse import diags
-from sympy import *
-import sympy as sym
 
 def gauss_elimination(A,b):
     from scipy.linalg import lu_factor, lu_solve
     lu, piv = lu_factor(A)
     x = lu_solve((lu, piv), b)
-    #print("piv:", piv)
-    #print("lu:", lu)
-
     return x
 
 def gaussElim(A,B):
@@ -81,3 +66,51 @@ def jacobi_num(A, b, tol=10e-4, iter=10000):
     return x, k
 
 
+def gauss_seidel_num(A, b, iter=10000):
+    x = np.zeros_like(b, dtype=np.double)
+    for k in range(iter):
+        x_prev  = x.copy()
+        for i in range(A.shape[0]):
+            x[i] = (b[i] - np.dot(A[i,:i], x[:i]) - np.dot(A[i,(i+1):], x_prev[(i+1):])) / A[i ,i]
+        if termin(x , x_prev):
+            break
+    return x, k
+
+
+def jacobi(A, b, iter=10000):
+    #erg = []
+    [m, n] = np.shape(A)
+    x = np.zeros((m))
+    x0 = np.copy(x)
+    D = np.diag(np.diag(A))
+    D_inv = np.linalg.inv(D)
+    B = np.dot(D_inv,D - A)
+    g = np.dot(D_inv,b)
+    for k in range(iter):
+        #erg.append(x)
+        x = np.add(np.dot(B,x),g)
+        if termin(x , x0 ):
+            return x, k
+        x0 = np.copy(x)
+    return x, k
+
+
+def sor(A, b,w, iter=10000):
+    k=0
+    n = b.shape
+    x0 =  np.zeros((n))
+    x = np.copy(x0)
+    for step in range (1, iter):
+        for i in range(n[0]):
+            k+=1
+            new_values_sum = np.dot(A[i, :i], x[:i])
+            old_values_sum = np.dot(A[i, i+1 :], x0[ i+1: ])
+            x[i] = (b[i] - (old_values_sum + new_values_sum)) / A[i, i]
+            x[i] = np.dot(x[i], w) + np.dot(x0[i], (1 - w))
+        if termin(x, x0):
+            break
+        x0 = x
+    return x, k
+
+def termin(x , x0 , tol=10e-10):
+    return norm(np.subtract(x , x0), ord=1)  < tol
